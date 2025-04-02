@@ -146,6 +146,9 @@ function TestApp() {
   
   // Initialize with the correct sketch type
   const [currentSketchType, setCurrentSketchType] = useState<SketchType>(getInitialSketchType());
+  
+  // Add state for parameter values
+  const [paramValues, setParamValues] = useState(parameterStore);
 
   useEffect(() => {
     const url = new URL(window.location.href);
@@ -213,16 +216,22 @@ function TestApp() {
               min={value.min}
               max={value.max}
               step={value.step}
-              value={parameterStore[key as keyof typeof parameterStore]}
+              value={paramValues[key as keyof typeof paramValues]}
               className="flex-grow"
               onChange={(e) => {
-                console.log(e.target.value, typeof e.target.value);
                 const newValue = parseFloat(e.target.value);
+                const newParams = { ...paramValues, [key]: newValue };
+                setParamValues(newParams);
                 parameterStore[key as keyof typeof parameterStore] = newValue;
+                
+                // Update parameters in the running sketch
+                if (p5Instance) {
+                  (p5Instance as any).updateParameters(parameterStore);
+                }
               }}
             />
             <span className="w-16 text-right text-gray-600">
-              {parameterStore[key as keyof typeof parameterStore]}
+              {paramValues[key as keyof typeof paramValues]}
             </span>
           </div>
         ))}

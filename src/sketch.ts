@@ -29,9 +29,16 @@ export function initParameterStore(): ParameterStore {
 
 // This function creates the p5 sketch
 export function createSketch(parameterStore: ParameterStore) {
+  let currentParams = parameterStore;
+  
   return function sketch(p: p5) {
     let font: p5.Font;
     let startTime = p.millis();
+   
+    // Expose a method to update parameters
+    (p as any).updateParameters = (newParams: ParameterStore) => {
+      currentParams = newParams;
+    };
    
     p.preload = function() {
       // can preload assets here...
@@ -74,7 +81,7 @@ export function createSketch(parameterStore: ParameterStore) {
         
       p.translate(-p.width/2, -p.height/2);
 
-      let drawFrameInterval = Math.ceil(frameRate * parameterStore.timeMultiplier);
+      let drawFrameInterval = Math.ceil(frameRate * currentParams.timeMultiplier);
       if (frameCount % drawFrameInterval == 0) {
         // draw a red circle at a random position on the canvas
         let x = p.random(0, p.width);
